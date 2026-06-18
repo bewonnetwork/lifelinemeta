@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>LIFELINEMETA – Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      min-height:100vh;
+      background:#ffffff;
+      font-family:system-ui, sans-serif;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+    .header{
+      width:100%; max-width:900px; padding:12px 20px;
+      display:flex; align-items:center; gap:12px;
+      background:white;
+    }
+    .logo{
+      width:65px; height:65px; border-radius:50%; 
+      object-fit:cover; border:2px solid #1e3a8a;
+    }
+    .title{font-size:24px; font-weight:800; color:#000000;} /* Smaller title */
+
+    .container{width:100%; max-width:480px; padding:20px 15px; margin-top:20px;}
+    .card{
+      background:white; border-radius:16px; padding:30px 25px;
+      box-shadow:0 5px 20px rgba(0,0,0,0.08); border:2px solid #1e3a8a;
+    }
+    h1{
+      text-align:center; 
+      color:#000000; 
+      margin-bottom:25px; 
+      font-size:23px;
+    }
+    .form-group{margin-bottom:16px; position:relative;}
+    label{font-size:14px; font-weight:600; color:#000000; margin-bottom:6px; display:block;}
+    input, select{
+      width:100%; padding:14px 14px 14px 45px; border:1px solid #1e3a8a;
+      border-radius:8px; font-size:15px; background:#f9fafb;
+    }
+    .icon{
+      position:absolute; left:15px; top:38px; font-size:18px; 
+      color:#000000; /* All symbols black */
+    }
+    .eye{
+      position:absolute; right:15px; top:38px; cursor:pointer;
+      font-weight:bold; color:#1e3a8a;
+    }
+    .strength, .match{font-size:13px; margin-top:5px; font-weight:600;}
+    button{
+      width:100%; padding:15px; background:#1e3a8a; color:white;
+      border:none; border-radius:8px; font-size:16px; font-weight:700;
+      margin-top:10px; cursor:pointer;
+    }
+    button:hover{background:#2563eb;}
+    #message{text-align:center; margin:15px 0; font-weight:600; min-height:50px;}
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <img src="assets/logo/livelinemeta.png" alt="Logo" class="logo">
+  <h1 class="title">LIVELINEMETA</h1>
+</div>
+
+<div class="container">
+  <div class="card">
+    <h1>CREATE ACCOUNT <span style="font-size:24px;">📝</span></h1> <!-- Black symbol added -->
+    
+    <form id="registerForm">
+      <div class="form-group">
+        <label>Full Name</label>
+        <span class="icon">👤</span>
+        <input type="text" id="fullName" placeholder="Full Name" required>
+      </div>
+
+      <div class="form-group">
+        <label>Username</label>
+        <span class="icon">@</span>
+        <input type="text" id="username" placeholder="Username" required>
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <span class="icon">✉️</span>
+        <input type="email" id="email" placeholder="Email Address" required>
+      </div>
+
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <span class="icon">📱</span>
+        <input type="tel" id="mobile" placeholder="Mobile Number" required>
+      </div>
+
+      <div class="form-group">
+        <label>Country</label>
+        <span class="icon">🌍</span>
+        <select id="country" required>
+          <option value="Bangladesh">Bangladesh</option>
+          <option value="India">India</option>
+          <option value="USA">USA</option>
+          <option value="UK">UK</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <span class="icon">🔒</span>
+        <input type="password" id="password" placeholder="Password" required>
+        <span class="eye" data-target="password">SHOW</span>
+        <div id="strength" class="strength"></div>
+      </div>
+
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <span class="icon">🔒</span>
+        <input type="password" id="password2" placeholder="Confirm Password" required>
+        <span class="eye" data-target="password2">SHOW</span>
+        <div id="match" class="match"></div>
+      </div>
+
+      <div class="form-group">
+        <label>Referral Code (Optional)</label>
+        <span class="icon">🔗</span>
+        <input type="text" id="refCode" placeholder="Referral Code">
+      </div>
+
+      <label><input type="checkbox" required> I agree to Terms & Conditions</label>
+      
+      <button type="submit">REGISTER NOW</button>
+    </form>
+    
+    <div id="message"></div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+<script>
+// Firebase Config + All functions (same as before)
+const firebaseConfig = {
+  apiKey: "AIzaSyA3G2bMOJ_HSDYXJPuM70tVjfbkHlMftr4",
+  authDomain: "livelinemeta.firebaseapp.com",
+  projectId: "livelinemeta",
+  storageBucket: "livelinemeta.appspot.com",
+  messagingSenderId: "206900805598",
+  appId: "1:206900805598:web:10e6b39100af201b4e674f"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Password Show/Hide
+document.querySelectorAll('.eye').forEach(icon => {
+  icon.addEventListener('click', () => {
+    const target = document.getElementById(icon.dataset.target);
+    if (target.type === 'password') {
+      target.type = 'text';
+      icon.textContent = 'HIDE';
+    } else {
+      target.type = 'password';
+      icon.textContent = 'SHOW';
+    }
+  });
+});
+
+// Password Strength & Match (same)
+const password = document.getElementById('password');
+const password2 = document.getElementById('password2');
+const strengthBox = document.getElementById('strength');
+const matchBox = document.getElementById('match');
+
+password.addEventListener('input', () => {
+  const val = password.value;
+  if (val.length === 0) strengthBox.textContent = '';
+  else if (val.length >= 8 && /[A-Z]/.test(val) && /\d/.test(val) && /[^A-Za-z0-9]/.test(val)) {
+    strengthBox.innerHTML = '✅ <span style="color:green">Strong</span>';
+  } else if (val.length >= 6) {
+    strengthBox.innerHTML = '⚠️ <span style="color:orange">Medium</span>';
+  } else {
+    strengthBox.innerHTML = '❌ <span style="color:red">Weak</span>';
+  }
+  checkMatch();
+});
+
+password2.addEventListener('input', checkMatch);
+
+function checkMatch() {
+  if (password2.value === "") matchBox.textContent = "";
+  else if (password.value === password2.value) {
+    matchBox.innerHTML = '✅ <span style="color:green">Passwords Match</span>';
+  } else {
+    matchBox.innerHTML = '❌ <span style="color:red">Passwords Do Not Match</span>';
+  }
+}
+
+// Form Submit (same working code)
+document.getElementById("registerForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const message = document.getElementById("message");
+  message.style.color = "blue";
+  message.textContent = "Creating account... Please wait";
+
+  const fullName = document.getElementById("fullName").value.trim();
+  const username = document.getElementById("username").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const passwordVal = password.value;
+  const password2Val = password2.value;
+
+  if (passwordVal !== password2Val) {
+    message.style.color = "red";
+    message.textContent = "❌ Passwords do not match!";
+    return;
+  }
+  if (passwordVal.length < 6) {
+    message.style.color = "red";
+    message.textContent = "❌ Password must be at least 6 characters!";
+    return;
+  }
+
+  try {
+    const userCredential = await auth.createUserWithEmailAndPassword(email, passwordVal);
+    const uid = userCredential.user.uid;
+
+    await db.collection("users").doc(uid).set({
+      fullName, username, email,
+      country: document.getElementById("country").value,
+      mobile: document.getElementById("mobile").value,
+      refCode: document.getElementById("refCode").value || "",
+      createdAt: new Date(),
+      balance: 0
+    });
+
+    message.style.color = "green";
+    message.innerHTML = `✅ Registration Successful!<br>Your ID: ${uid}<br>Redirecting...`;
+
+    setTimeout(() => window.location.href = `login.html?uid=${uid}`, 2000);
+  } catch (error) {
+    console.error(error);
+    message.style.color = "red";
+    message.textContent = "❌ " + error.message;
+  }
+});
+</script>
+</body>
+</html>

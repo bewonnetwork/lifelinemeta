@@ -1,1296 +1,909 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>LIFELINEMETA - SUPER ADMIN PANEL</title>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LifelineMeta — Super Admin</title>
 <style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Segoe UI,sans-serif}
+:root{--blue:#1e40af;--green:#10b981;--red:#ef4444;--orange:#f59e0b;--purple:#7c3aed;--bg:#f1f5f9;--white:#fff;--border:#e5e7eb;--text:#1f2937;--muted:#6b7280}
+body{background:var(--bg);color:var(--text)}
 
-/* ================= RESET ================= */
+/* SIDEBAR */
+.sidebar{width:250px;background:var(--blue);color:#fff;position:fixed;top:0;left:0;bottom:0;padding:20px 15px;overflow-y:auto;z-index:100}
+.sidebar-logo{font-size:1.1rem;font-weight:800;text-align:center;padding-bottom:15px;border-bottom:1px solid rgba(255,255,255,.2);margin-bottom:15px}
+.menu-item{padding:12px 15px;border-radius:8px;cursor:pointer;margin-bottom:6px;font-weight:600;font-size:.875rem;transition:.2s;display:flex;align-items:center;gap:8px}
+.menu-item:hover{background:rgba(255,255,255,.15)}
+.menu-item.active{background:rgba(255,255,255,.2)}
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Segoe UI,sans-serif;
+/* MAIN */
+.main{margin-left:250px;padding:20px;min-height:100vh}
+.topbar{background:var(--white);padding:15px 20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.topbar h2{font-size:1.1rem;color:var(--blue)}
+
+/* PAGE */
+.page{display:none}.page.active{display:block}
+
+/* CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:15px;margin-bottom:20px}
+.stat-card{background:var(--white);padding:18px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);border-left:4px solid var(--blue)}
+.stat-card h3{font-size:.8rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase}
+.stat-card .val{font-size:1.8rem;font-weight:800;color:var(--blue)}
+
+/* TABLE CARD */
+.card{background:var(--white);border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);overflow:hidden;margin-bottom:20px}
+.card-header{padding:15px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.card-header h3{font-size:1rem;font-weight:700}
+.card-body{padding:15px 20px}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead th{background:#eff6ff;color:var(--blue);padding:10px 12px;text-align:left;font-weight:600;white-space:nowrap}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:hover{background:#f9fafb}
+tbody tr:last-child td{border-bottom:none}
+
+/* BADGE */
+.badge{padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700}
+.badge-green{background:#dcfce7;color:#166534}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.badge-orange{background:#fef3c7;color:#92400e}
+
+/* BUTTONS */
+.btn{padding:7px 13px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:.8rem;transition:.2s}
+.btn:hover{opacity:.85}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-green{background:var(--green);color:#fff}
+.btn-red{background:var(--red);color:#fff}
+.btn-orange{background:var(--orange);color:#fff}
+.btn-purple{background:var(--purple);color:#fff}
+.btn-ghost{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+
+/* SEARCH */
+.search-input{padding:9px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;outline:none;min-width:250px;transition:border-color .2s}
+.search-input:focus{border-color:var(--blue)}
+
+/* PAGINATION */
+.pagination{display:flex;align-items:center;gap:6px;margin-top:15px;justify-content:center;flex-wrap:wrap}
+.pg-btn{padding:6px 12px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);cursor:pointer;font-size:.8rem;font-weight:600;transition:.2s}
+.pg-btn:hover,.pg-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.pg-info{color:var(--muted);font-size:.8rem}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--white);border-radius:16px;padding:25px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto}
+.modal h3{font-size:1.1rem;font-weight:700;margin-bottom:15px;color:var(--blue)}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+/* FORM */
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;outline:none;transition:border-color .2s;background:var(--white);color:var(--text)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--blue)}
+.form-group textarea{resize:vertical;min-height:80px}
+
+/* USER INFO GRID */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px}
+.info-item{background:var(--bg);border-radius:8px;padding:10px}
+.info-item .lbl{font-size:.72rem;color:var(--muted);margin-bottom:3px}
+.info-item .val{font-size:.9rem;font-weight:600;word-break:break-all}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:10px;font-size:.875rem;font-weight:600;z-index:9999;opacity:0;transform:translateY(20px);transition:.3s;pointer-events:none}
+#toast.show{opacity:1;transform:translateY(0)}
+#toast.success{background:#dcfce7;color:#166534;border:1px solid #86efac}
+#toast.error{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+
+/* ACTION BTNS */
+.action-group{display:flex;gap:5px;flex-wrap:wrap}
+
+@media(max-width:700px){
+  .sidebar{width:100%;position:relative;height:auto}
+  .main{margin-left:0}
+  .info-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
 }
-
-/* ================= BODY ================= */
-
-body{
-background:#f1f5f9;
-color:#1f2937;
-}
-
-/* ================= SIDEBAR ================= */
-
-.sidebar{
-width:270px;
-background:#1e40af;
-color:white;
-position:fixed;
-top:0;
-left:0;
-bottom:0;
-padding:20px;
-overflow:auto;
-}
-
-.logo{
-font-size:24px;
-font-weight:800;
-text-align:center;
-margin-bottom:30px;
-padding-bottom:15px;
-border-bottom:1px solid rgba(255,255,255,0.2);
-}
-
-.menu-item{
-padding:15px;
-border-radius:10px;
-cursor:pointer;
-margin-bottom:10px;
-transition:0.3s;
-font-weight:600;
-}
-
-.menu-item:hover{
-background:#2563eb;
-transform:translateX(5px);
-}
-
-/* ================= MAIN ================= */
-
-.main{
-margin-left:270px;
-padding:25px;
-}
-
-/* ================= HEADER ================= */
-
-.header{
-background:white;
-padding:20px;
-border-radius:12px;
-box-shadow:0 5px 20px rgba(0,0,0,0.08);
-margin-bottom:20px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-/* ================= CARD ================= */
-
-.card{
-background:white;
-padding:20px;
-border-radius:12px;
-box-shadow:0 5px 20px rgba(0,0,0,0.08);
-margin-bottom:20px;
-}
-
-/* ================= GRID ================= */
-
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
-margin-bottom:20px;
-}
-
-/* ================= TABLE ================= */
-
-table{
-width:100%;
-border-collapse:collapse;
-}
-
-th,td{
-padding:12px;
-border-bottom:1px solid #eee;
-text-align:left;
-font-size:14px;
-}
-
-th{
-background:#eff6ff;
-color:#1e40af;
-}
-
-/* ================= BUTTON ================= */
-
-button{
-padding:8px 14px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-font-weight:600;
-margin:2px;
-}
-
-.green{
-background:#10b981;
-color:white;
-}
-
-.red{
-background:#ef4444;
-color:white;
-}
-
-.blue{
-background:#1e40af;
-color:white;
-}
-
-.orange{
-background:#f59e0b;
-color:white;
-}
-
-/* ================= INPUT ================= */
-
-input,textarea,select{
-padding:10px;
-width:100%;
-margin-top:5px;
-border:1px solid #ddd;
-border-radius:8px;
-}
-
-textarea{
-min-height:120px;
-resize:none;
-}
-
-/* ================= PAGE ================= */
-
-.page{
-display:none;
-}
-
-.active{
-display:block;
-}
-
-/* ================= BADGE ================= */
-
-.badge-green{
-background:#dcfce7;
-color:#166534;
-padding:5px 10px;
-border-radius:20px;
-font-size:12px;
-font-weight:700;
-}
-
-.badge-red{
-background:#fee2e2;
-color:#991b1b;
-padding:5px 10px;
-border-radius:20px;
-font-size:12px;
-font-weight:700;
-}
-
-/* ================= NOTICE ================= */
-
-.notice-box{
-background:#eff6ff;
-padding:15px;
-border-radius:10px;
-margin-top:10px;
-}
-
-/* ================= SEARCH ================= */
-
-.search-box{
-margin:15px 0;
-}
-
 </style>
 </head>
-
 <body>
 
 <script>
-if(localStorage.getItem("adminLogged") !== "true"){
-window.location.href="admin-login.html";
+if(localStorage.getItem('adminLogged') !== 'true'){
+  window.location.href = 'admin-login.html';
 }
 </script>
 
-<!-- ================= SIDEBAR ================= -->
-
+<!-- SIDEBAR -->
 <div class="sidebar">
-
-<div class="logo">
-⚙️ ADMIN PANEL
+  <div class="sidebar-logo">⚙️ LIFELINEMETA<br/><small style="font-weight:400;opacity:.7;font-size:.7rem">Super Admin Panel</small></div>
+  <div class="menu-item active" onclick="showPage('dashboard',this)">📊 Dashboard</div>
+  <div class="menu-item" onclick="showPage('users',this)">👥 Users</div>
+  <div class="menu-item" onclick="showPage('investments',this)">📈 Investments</div>
+  <div class="menu-item" onclick="showPage('withdraw',this)">💸 Withdrawals</div>
+  <div class="menu-item" onclick="showPage('transactions',this)">🔁 Transactions</div>
+  <div class="menu-item" onclick="showPage('notice',this)">📢 Notice Board</div>
+  <div class="menu-item" onclick="showPage('voucher',this)">🎁 Voucher</div>
+  <div class="menu-item" onclick="showPage('settings',this)">⚙️ MLM Settings</div>
+  <div class="menu-item" onclick="showPage('menucontrol',this)">🧩 Menu Control</div>
+  <div class="menu-item" onclick="showPage('addbalance',this)">💰 Add Balance</div>
+  <div class="menu-item" onclick="showPage('createuser',this)">➕ Create User</div>
+  <div class="menu-item" onclick="showPage('backup',this)">💾 Backup</div>
+  <div class="menu-item" onclick="doLogout()" style="margin-top:20px;background:rgba(239,68,68,.2)">🚪 Logout</div>
 </div>
 
-<div class="menu-item" onclick="showPage('dashboard')">📊 Dashboard</div>
-
-<div class="menu-item" onclick="showPage('users')">👥 Users</div>
-
-<div class="menu-item" onclick="showPage('investments')">📈 Investments</div>
-
-<div class="menu-item" onclick="showPage('withdraw')">💸 Withdrawals</div>
-
-<div class="menu-item" onclick="showPage('notice')">📢 Notice Board</div>
-
-<div class="menu-item" onclick="showPage('settings')">⚙️ Global Settings</div>
-
-<div class="menu-item" onclick="showPage('menucontrol')">🧩 Menu Control</div>
-
-<div class="menu-item" onclick="showPage('addbalance')">💰 Add Balance</div>
-
-<div class="menu-item" onclick="showPage('createuser')">➕ Create User</div>
-
-<div class="menu-item" onclick="logout()">🚪 Logout</div>
-
-</div>
-
-<!-- ================= MAIN ================= -->
-
+<!-- MAIN -->
 <div class="main">
+  <div class="topbar">
+    <h2 id="pageTitle">📊 Dashboard</h2>
+    <div style="color:var(--muted);font-size:.85rem">👑 Welcome, Admin</div>
+  </div>
 
-<div class="header">
-<h2>SUPER ADMIN DASHBOARD</h2>
-<div>Welcome Admin 👑</div>
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card"><h3>Total Users</h3><div class="val" id="st-users">—</div></div>
+      <div class="stat-card" style="border-color:#10b981"><h3>Active Users</h3><div class="val" style="color:#10b981" id="st-active">—</div></div>
+      <div class="stat-card" style="border-color:#ef4444"><h3>Blocked Users</h3><div class="val" style="color:#ef4444" id="st-blocked">—</div></div>
+      <div class="stat-card" style="border-color:#f59e0b"><h3>Total Balance</h3><div class="val" style="color:#f59e0b" id="st-balance">—</div></div>
+      <div class="stat-card" style="border-color:#7c3aed"><h3>Pending Withdraw</h3><div class="val" style="color:#7c3aed" id="st-withdraw">—</div></div>
+      <div class="stat-card" style="border-color:#10b981"><h3>Total Investment</h3><div class="val" style="color:#10b981" id="st-invest">—</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>📢 Live Notice</h3></div>
+      <div class="card-body"><div id="liveNotice" style="background:#eff6ff;padding:15px;border-radius:8px;color:var(--blue)">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- USERS -->
+  <div class="page" id="page-users">
+    <div class="card">
+      <div class="card-header">
+        <h3>👥 All Users</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input class="search-input" id="userSearch" placeholder="🔍 Search name, email, username..." oninput="filterUsers()"/>
+          <button class="btn btn-blue" onclick="loadUsers()">🔄 Refresh</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Name</th><th>Username</th><th>Email</th>
+              <th>Mobile</th><th>Balance</th><th>Country</th>
+              <th>Status</th><th>Income</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="userTable"><tr><td colspan="10" style="text-align:center;padding:30px;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="userPagination"></div>
+    </div>
+  </div>
+
+  <!-- INVESTMENTS -->
+  <div class="page" id="page-investments">
+    <div class="card">
+      <div class="card-header"><h3>📈 All Investments</h3><button class="btn btn-blue" onclick="loadInvestments()">🔄 Refresh</button></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>User</th><th>Amount</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="investTable"><tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- WITHDRAW -->
+  <div class="page" id="page-withdraw">
+    <div class="card">
+      <div class="card-header"><h3>💸 Withdraw Requests</h3><button class="btn btn-blue" onclick="loadWithdraw()">🔄 Refresh</button></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>User</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="withdrawTable"><tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANSACTIONS -->
+  <div class="page" id="page-transactions">
+    <div class="card">
+      <div class="card-header">
+        <h3>🔁 Transaction History</h3>
+        <div style="display:flex;gap:8px">
+          <input class="search-input" id="txSearch" placeholder="🔍 Search..." oninput="filterTx()"/>
+          <button class="btn btn-blue" onclick="loadTransactions()">🔄 Refresh</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>User</th><th>Type</th><th>Amount</th><th>Note</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="txTable"><tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTICE -->
+  <div class="page" id="page-notice">
+    <div class="card" style="max-width:600px">
+      <div class="card-header"><h3>📢 Notice Board</h3></div>
+      <div class="card-body">
+        <div class="form-group"><label>Notice Title</label><input id="noticeTitle" placeholder="Enter title..."/></div>
+        <div class="form-group"><label>Notice Message</label><textarea id="noticeText" placeholder="Write notice here..."></textarea></div>
+        <button class="btn btn-blue" onclick="saveNotice()">💾 Save Notice</button>
+      </div>
+    </div>
+    <div class="card" style="max-width:600px">
+      <div class="card-header"><h3>All Notices</h3></div>
+      <div class="card-body" id="noticeList">Loading...</div>
+    </div>
+  </div>
+
+  <!-- VOUCHER -->
+  <div class="page" id="page-voucher">
+    <div class="card" style="max-width:600px">
+      <div class="card-header"><h3>🎁 Send Voucher / Gift</h3></div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Send To</label>
+          <select id="voucherTarget">
+            <option value="all">All Users</option>
+            <option value="single">Single User</option>
+          </select>
+        </div>
+        <div class="form-group" id="voucherUserGroup" style="display:none">
+          <label>User Email or ID</label>
+          <input id="voucherUserId" placeholder="Enter user email or document ID..."/>
+        </div>
+        <div class="form-group"><label>Amount ($)</label><input type="number" id="voucherAmount" placeholder="e.g. 10"/></div>
+        <div class="form-group"><label>Note</label><input id="voucherNote" placeholder="Gift reason (optional)"/></div>
+        <button class="btn btn-green" onclick="sendVoucher()">🎁 Send Voucher</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="card" style="max-width:600px">
+      <div class="card-header"><h3>⚙️ MLM Global Settings</h3></div>
+      <div class="card-body">
+        <div class="form-group"><label>ROI per Day (%)</label><input id="roi" placeholder="e.g. 1"/></div>
+        <div class="form-group"><label>Monthly ROI (%)</label><input id="monthlyROI" placeholder="e.g. 10"/></div>
+        <div class="form-group"><label>Referral Bonus (%)</label><input id="ref" placeholder="e.g. 5"/></div>
+        <div class="form-group"><label>Generation Income (%)</label><input id="genIncome" placeholder="e.g. 3"/></div>
+        <div class="form-group"><label>Matching Income (%)</label><input id="matchIncome" placeholder="e.g. 2"/></div>
+        <div class="form-group"><label>Registration Fee ($)</label><input id="fee" placeholder="e.g. 20"/></div>
+        <div class="form-group"><label>Minimum Withdraw ($)</label><input id="minWithdraw" placeholder="e.g. 10"/></div>
+        <div class="form-group"><label>Maximum Withdraw ($)</label><input id="maxWithdraw" placeholder="e.g. 500"/></div>
+        <div class="form-group"><label>Tree Cut (Level)</label><input id="treeCut" placeholder="e.g. 13"/></div>
+        <button class="btn btn-blue" onclick="saveSettings()">💾 Save Settings</button>
+        <button class="btn btn-green" style="margin-left:10px" onclick="distributeROI()">💰 Distribute Monthly ROI</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MENU CONTROL -->
+  <div class="page" id="page-menucontrol">
+    <div class="card" style="max-width:500px">
+      <div class="card-header"><h3>🧩 User Dashboard Menu Control</h3></div>
+      <div class="card-body">
+        <div class="form-group"><label>Deposit Button</label><select id="depositBtn"><option value="true">ON ✅</option><option value="false">OFF ❌</option></select></div>
+        <div class="form-group"><label>Withdraw Button</label><select id="withdrawBtn"><option value="true">ON ✅</option><option value="false">OFF ❌</option></select></div>
+        <div class="form-group"><label>Team Button</label><select id="teamBtn"><option value="true">ON ✅</option><option value="false">OFF ❌</option></select></div>
+        <div class="form-group"><label>Salary Button</label><select id="salaryBtn"><option value="true">ON ✅</option><option value="false">OFF ❌</option></select></div>
+        <div class="form-group"><label>Investment Button</label><select id="investBtn"><option value="true">ON ✅</option><option value="false">OFF ❌</option></select></div>
+        <div class="form-group"><label>ROI Button</label><select id="roiBtn"><option value="true">ON ✅</option><option value="false">OFF ❌</option></select></div>
+        <button class="btn btn-blue" onclick="saveMenuControl()">💾 Save Menu Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD BALANCE -->
+  <div class="page" id="page-addbalance">
+    <div class="card" style="max-width:500px">
+      <div class="card-header"><h3>💰 Add / Deduct Balance</h3></div>
+      <div class="card-body">
+        <div class="form-group"><label>User Document ID</label><input id="balanceUserId" placeholder="Paste user document ID..."/></div>
+        <div class="form-group"><label>Amount ($)</label><input type="number" id="balanceAmount" placeholder="e.g. 100"/></div>
+        <div class="form-group">
+          <label>Action</label>
+          <select id="balanceAction">
+            <option value="add">Add Balance ➕</option>
+            <option value="deduct">Deduct Balance ➖</option>
+            <option value="set">Set Exact Balance</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Note</label><input id="balanceNote" placeholder="Reason (optional)"/></div>
+        <button class="btn btn-green" onclick="modifyBalance()">✅ Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREATE USER -->
+  <div class="page" id="page-createuser">
+    <div class="card" style="max-width:500px">
+      <div class="card-header"><h3>➕ Create New User</h3></div>
+      <div class="card-body">
+        <div class="form-group"><label>Full Name</label><input id="newName" placeholder="Full name..."/></div>
+        <div class="form-group"><label>Email</label><input id="newEmail" placeholder="Email address..."/></div>
+        <div class="form-group"><label>Username</label><input id="newUsername" placeholder="Username..."/></div>
+        <div class="form-group"><label>Mobile</label><input id="newMobile" placeholder="Mobile number..."/></div>
+        <div class="form-group"><label>Country</label><input id="newCountry" placeholder="Country..."/></div>
+        <div class="form-group"><label>Initial Balance ($)</label><input type="number" id="newBalance" placeholder="0"/></div>
+        <div class="form-group"><label>Ref Code</label><input id="newRef" placeholder="Referral code (optional)..."/></div>
+        <button class="btn btn-blue" onclick="createUser()">➕ Create User</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BACKUP -->
+  <div class="page" id="page-backup">
+    <div class="card" style="max-width:500px">
+      <div class="card-header"><h3>💾 Backup & Restore</h3></div>
+      <div class="card-body">
+        <p style="color:var(--muted);margin-bottom:15px;font-size:.875rem">Download all users data as JSON. Restore করতে চাইলে JSON file upload করো।</p>
+        <button class="btn btn-blue" onclick="downloadBackup()">⬇️ Download Backup (JSON)</button>
+        <div style="margin-top:20px">
+          <div class="form-group"><label>Restore from JSON file</label><input type="file" id="restoreFile" accept=".json"/></div>
+          <button class="btn btn-orange" onclick="restoreBackup()">⬆️ Restore Backup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- USER DETAIL MODAL -->
+<div class="modal-bg" id="userModal">
+  <div class="modal">
+    <h3>👤 User Details</h3>
+    <div class="info-grid" id="userInfoGrid"></div>
+    <hr style="margin:15px 0;border-color:var(--border)"/>
+    <div style="margin-bottom:15px">
+      <div style="font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:10px;text-transform:uppercase">Quick Actions</div>
+      <div class="action-group" id="userModalActions"></div>
+    </div>
+    <hr style="margin:15px 0;border-color:var(--border)"/>
+    <div style="font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:10px;text-transform:uppercase">Update Wallet</div>
+    <div style="display:flex;gap:8px">
+      <input type="number" id="walletAmount" placeholder="New balance..." class="search-input" style="flex:1"/>
+      <button class="btn btn-orange" onclick="updateWallet()">Update</button>
+    </div>
+    <hr style="margin:15px 0;border-color:var(--border)"/>
+    <div style="font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:10px;text-transform:uppercase">Change Sponsor</div>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="newSponsor" placeholder="New sponsor ref code..." class="search-input" style="flex:1"/>
+      <button class="btn btn-purple" onclick="changeSponsor()">Change</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('userModal')">Close</button>
+    </div>
+  </div>
 </div>
 
-<!-- ================= DASHBOARD ================= -->
+<!-- TOAST -->
+<div id="toast"></div>
 
-<div id="dashboard" class="page active">
-
-<div class="grid">
-
-<div class="card">
-<h3>Total Users</h3>
-<h1 id="totalUsers">0</h1>
-</div>
-
-<div class="card">
-<h3>Total Investment</h3>
-<h1 id="totalInvest">$0</h1>
-</div>
-
-<div class="card">
-<h3>Pending Withdraw</h3>
-<h1 id="pendingWithdraw">0</h1>
-</div>
-
-<div class="card">
-<h3>Total Withdraw</h3>
-<h1 id="totalWithdraw">$0</h1>
-</div>
-
-</div>
-
-<div class="card">
-
-<h2>📢 Live Notice</h2>
-
-<div class="notice-box" id="liveNotice">
-welcome. Have a nice day
-</div>
-
-</div>
-
-</div>
-
-<!-- ================= USERS ================= -->
-
-<div id="users" class="page">
-
-<div class="card">
-
-<h2>All Users</h2>
-
-<div class="search-box">
-
-<input
-type="text"
-id="searchUser"
-placeholder="Search user..."
-onkeyup="searchUsers()">
-
-</div>
-
-<table>
-
-<thead>
-
-<tr>
-<th>Name</th>
-<th>Email</th>
-<th>Balance</th>
-<th>Rank</th>
-<th>Status</th>
-<th>Income</th>
-<th>Action</th>
-</tr>
-
-</thead>
-
-<tbody id="userTable"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-<!-- ================= INVESTMENTS ================= -->
-
-<div id="investments" class="page">
-
-<div class="card">
-
-<h2>All Investments</h2>
-
-<table>
-
-<thead>
-
-<tr>
-<th>User</th>
-<th>Amount</th>
-<th>Date</th>
-<th>Status</th>
-</tr>
-
-</thead>
-
-<tbody id="investTable"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-<!-- ================= WITHDRAW ================= -->
-
-<div id="withdraw" class="page">
-
-<div class="card">
-
-<h2>Withdraw Requests</h2>
-
-<table>
-
-<thead>
-
-<tr>
-<th>User</th>
-<th>Amount</th>
-<th>Status</th>
-<th>Action</th>
-</tr>
-
-</thead>
-
-<tbody id="withdrawTable"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-<!-- ================= NOTICE ================= -->
-
-<div id="notice" class="page">
-
-<div class="card">
-
-<h2>Notice Board</h2>
-
-<label>Write Notice</label>
-
-<textarea id="noticeText"></textarea>
-
-<br><br>
-
-<button class="blue" onclick="saveNotice()">
-Save Notice
-</button>
-
-</div>
-
-</div>
-  <button class="green" onclick="distributeROI()">
-💰 Monthly ROI Distribution
-</button>
-<!-- ================= SETTINGS ================= -->
-
-<div id="settings" class="page">
-
-<div class="card">
-
-<h2>Global MLM Settings</h2>
-
-<label>ROI (%)</label>
-<input id="roi">
-
-<br><br>
-
-<label>Referral Bonus (%)</label>
-<input id="ref">
-
-<br><br>
-
-<label>Registration Fee ($)</label>
-<input id="fee">
-
-<br><br>
-
-<label>Minimum Withdraw ($)</label>
-<input id="minWithdraw">
-
-<br><br>
-
-<label>Maximum Withdraw ($)</label>
-<input id="maxWithdraw">
-
-<br><br>
-
-<label>Monthly ROI (%)</label>
-<input id="monthlyROI">
-
-<br><br>
-
-<button class="blue" onclick="saveSettings()">
-Save Settings
-</button>
-
-</div>
-
-</div>
-
-<!-- ================= MENU CONTROL ================= -->
-
-<div id="menucontrol" class="page">
-
-<div class="card">
-
-<h2>User Dashboard Menu Control</h2>
-
-<label>Deposit Button</label>
-<select id="depositBtn">
-<option value="true">ON</option>
-<option value="false">OFF</option>
-</select>
-
-<br><br>
-
-<label>Withdraw Button</label>
-<select id="withdrawBtn">
-<option value="true">ON</option>
-<option value="false">OFF</option>
-</select>
-
-<br><br>
-
-<label>Team Button</label>
-<select id="teamBtn">
-<option value="true">ON</option>
-<option value="false">OFF</option>
-</select>
-
-<br><br>
-
-<label>Salary Button</label>
-<select id="salaryBtn">
-<option value="true">ON</option>
-<option value="false">OFF</option>
-</select>
-
-<br><br>
-
-<button class="blue" onclick="saveMenuControl()">
-Save Menu Control
-</button>
-
-</div>
-
-</div>
-
-<!-- ================= ADD BALANCE ================= -->
-
-<div id="addbalance" class="page">
-
-<div class="card">
-
-<h2>Add User Balance</h2>
-
-<label>User Document ID</label>
-<input id="balanceUserId">
-
-<br><br>
-
-<label>Amount</label>
-<input id="balanceAmount">
-
-<br><br>
-
-<button class="green" onclick="addBalance()">
-Add Balance
-</button>
-
-</div>
-
-</div>
-
-<!-- ================= CREATE USER ================= -->
-
-<div id="createuser" class="page">
-
-<div class="card">
-
-<h2>Create New User</h2>
-
-<label>Name</label>
-<input id="newName">
-
-<br><br>
-
-<label>Email</label>
-<input id="newEmail">
-
-<br><br>
-
-<label>Balance</label>
-<input id="newBalance">
-
-<br><br>
-
-<label>Rank</label>
-<input id="newRank" placeholder="Member">
-
-<br><br>
-
-<button class="blue" onclick="createUser()">
-Create User
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- ================= FIREBASE ================= -->
-
+<!-- FIREBASE -->
 <script type="module">
-
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-
-import {
-getFirestore,
-collection,
-getDocs,
-doc,
-updateDoc,
-setDoc,
-getDoc,
-deleteDoc,
-addDoc
-}
-from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-
-/* ================= FIREBASE CONFIG ================= */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, setDoc, getDoc, deleteDoc, addDoc, query, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
 const firebaseConfig = {
-
   apiKey: "AIzaSyA3G2bMOJ_HSDYXJPuM70tVjfbkHlMftr4",
   authDomain: "livelinemeta.firebaseapp.com",
   projectId: "livelinemeta",
-  storageBucket: "livelinemeta.appspot.com",   // ✅ ঠিক করা হলো
+  storageBucket: "livelinemeta.appspot.com",
   messagingSenderId: "206900805598",
   appId: "1:206900805598:web:10e6b39100af201b4e674f"
-
 };
 
 const app = initializeApp(firebaseConfig);
-
 const db = getFirestore(app);
 
-/* ================= PAGE SWITCH ================= */
+// ── STATE ──
+let allUsers = [];
+let filteredUsers = [];
+let allTx = [];
+let currentPage = 1;
+const PER_PAGE = 20;
+let selectedUserId = null;
 
-window.showPage = (id)=>{
+// ── TOAST ──
+function toast(msg, type='success'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => t.className = '', 3000);
+}
+window.toast = toast;
 
-document.querySelectorAll(".page").forEach((page)=>{
-page.classList.remove("active");
-});
-
-document.getElementById(id).classList.add("active");
-
+// ── PAGE NAV ──
+window.showPage = (id, el) => {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if(el) el.classList.add('active');
+  const titles = {dashboard:'📊 Dashboard',users:'👥 Users',investments:'📈 Investments',withdraw:'💸 Withdrawals',transactions:'🔁 Transactions',notice:'📢 Notice Board',voucher:'🎁 Voucher',settings:'⚙️ MLM Settings',menucontrol:'🧩 Menu Control',addbalance:'💰 Add Balance',createuser:'➕ Create User',backup:'💾 Backup'};
+  document.getElementById('pageTitle').textContent = titles[id] || id;
+  if(id==='notice') loadNotices();
+  if(id==='transactions') loadTransactions();
+  if(id==='settings') loadSettings();
+  if(id==='menucontrol') loadMenuControl();
 };
 
-/* ================= SEARCH USERS ================= */
+// ── MODAL ──
+window.closeModal = (id) => document.getElementById(id).classList.remove('open');
+document.querySelectorAll('.modal-bg').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
 
-window.searchUsers = ()=>{
+// ── LOGOUT ──
+window.doLogout = () => { localStorage.removeItem('adminLogged'); window.location.href='admin-login.html'; };
 
-let input =
-document.getElementById("searchUser")
-.value.toLowerCase();
+// ── DASHBOARD ──
+async function loadDashboard(){
+  try {
+    const snap = await getDocs(collection(db,'users'));
+    let total=0, active=0, blocked=0, balance=0;
+    snap.forEach(d => {
+      total++;
+      const data = d.data();
+      if(data.blocked) blocked++; else active++;
+      balance += parseFloat(data.balance||0);
+    });
+    document.getElementById('st-users').textContent = total;
+    document.getElementById('st-active').textContent = active;
+    document.getElementById('st-blocked').textContent = blocked;
+    document.getElementById('st-balance').textContent = '$'+balance.toFixed(2);
+    // withdraw count
+    try {
+      const wSnap = await getDocs(collection(db,'withdrawals'));
+      let pw=0, tw=0;
+      wSnap.forEach(d => { const data=d.data(); tw+=parseFloat(data.amount||0); if(data.status!=='approved') pw++; });
+      document.getElementById('st-withdraw').textContent = pw;
+    } catch(e){ document.getElementById('st-withdraw').textContent='—'; }
+    // invest
+    try {
+      const iSnap = await getDocs(collection(db,'investments'));
+      let ti=0;
+      iSnap.forEach(d => ti+=parseFloat(d.data().amount||0));
+      document.getElementById('st-invest').textContent = '$'+ti.toFixed(2);
+    } catch(e){ document.getElementById('st-invest').textContent='—'; }
+  } catch(e){ console.error(e); }
+}
 
-let rows =
-document.querySelectorAll("#userTable tr");
+// ── LOAD NOTICE FOR DASHBOARD ──
+async function loadDashboardNotice(){
+  try {
+    const snap = await getDoc(doc(db,'notice','latest'));
+    if(snap.exists()) document.getElementById('liveNotice').textContent = snap.data().text || 'No notice.';
+  } catch(e){}
+}
 
-rows.forEach((row)=>{
-
-let text = row.innerText.toLowerCase();
-
-row.style.display =
-text.includes(input)
-? ""
-: "none";
-
-});
-
-};
-
-/* ================= LOAD USERS ================= */
-
+// ── LOAD USERS ──
 async function loadUsers(){
-
-const snap = await getDocs(collection(db,"users"));
-
-let html = "";
-let count = 0;
-
-snap.forEach((d)=>{
-
-count++;
-
-const data = d.data();
-
-html += `
-
-<tr>
-
-<td>${data.name || "-"}</td>
-
-<td>${data.email || "-"}</td>
-
-<td>$${data.balance || 0}</td>
-
-<td>${data.rank || "Member"}</td>
-
-<td>
-
-${data.blocked ?
-
-'<span class="badge-red">Blocked</span>'
-
-:
-
-'<span class="badge-green">Active</span>'
-
+  document.getElementById('userTable').innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--muted)">Loading...</td></tr>';
+  try {
+    const snap = await getDocs(collection(db,'users'));
+    allUsers = [];
+    snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
+    filteredUsers = [...allUsers];
+    renderUsers();
+  } catch(e){ document.getElementById('userTable').innerHTML='<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--red)">Failed to load</td></tr>'; }
 }
+window.loadUsers = loadUsers;
 
-</td>
-
-<td>
-
-${data.incomeEnabled === false ?
-
-'<span class="badge-red">OFF</span>'
-
-:
-
-'<span class="badge-green">ON</span>'
-
-}
-
-</td>
-
-<td>
-
-<button class="blue"
-onclick="toggleIncome('${d.id}',${data.incomeEnabled})">
-
-${data.incomeEnabled === false
-? 'Income OFF'
-: 'Income ON'}
-
-</button>
-
-<button class="orange"
-onclick="blockUser('${d.id}',${data.blocked})">
-
-${data.blocked
-? 'Unblock'
-: 'Block'}
-
-</button>
-
-<button class="blue"
-onclick="loginAsUser('${d.id}')">
-Login
-</button>
-
-<button class="red"
-onclick="deleteUser('${d.id}')">
-Delete
-</button>
-
-</td>
-
-</tr>
-
-`;
-
-});
-
-document.getElementById("userTable").innerHTML = html;
-
-document.getElementById("totalUsers").innerText = count;
-
-}
-
-/* ================= BLOCK USER ================= */
-
-window.blockUser = async(id,status)=>{
-
-await updateDoc(doc(db,"users",id),{
-blocked: !status
-});
-
-alert("User Updated");
-
-loadUsers();
-
+window.filterUsers = () => {
+  const q = document.getElementById('userSearch').value.toLowerCase();
+  filteredUsers = allUsers.filter(u =>
+    (u['full neme']||u.fullName||u.name||'').toLowerCase().includes(q) ||
+    (u.email||'').toLowerCase().includes(q) ||
+    (u.username||'').toLowerCase().includes(q) ||
+    (u.mobile||'').includes(q)
+  );
+  currentPage = 1;
+  renderUsers();
 };
 
-/* ================= INCOME CONTROL ================= */
+function renderUsers(){
+  const total = Math.ceil(filteredUsers.length / PER_PAGE);
+  const start = (currentPage-1)*PER_PAGE;
+  const slice = filteredUsers.slice(start, start+PER_PAGE);
+  const tbody = document.getElementById('userTable');
+  if(!slice.length){ tbody.innerHTML='<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--muted)">No users found</td></tr>'; renderPagination(total); return; }
+  tbody.innerHTML = slice.map((u,i) => `
+    <tr>
+      <td style="color:var(--muted)">${start+i+1}</td>
+      <td><strong>${u['full neme']||u.fullName||u.name||'—'}</strong></td>
+      <td style="color:var(--blue)">@${u.username||'—'}</td>
+      <td style="color:var(--muted);font-size:.78rem">${u.email||'—'}</td>
+      <td>${u.mobile||'—'}</td>
+      <td><strong style="color:#f59e0b">$${parseFloat(u.balance||0).toFixed(2)}</strong></td>
+      <td>${u.country||'—'}</td>
+      <td><span class="badge ${u.blocked?'badge-red':'badge-green'}">${u.blocked?'Blocked':'Active'}</span></td>
+      <td><span class="badge ${u.incomeEnabled===false?'badge-red':'badge-green'}">${u.incomeEnabled===false?'OFF':'ON'}</span></td>
+      <td>
+        <div class="action-group">
+          <button class="btn btn-blue" style="padding:5px 9px;font-size:.75rem" onclick="viewUser('${u.id}')">👁️ View</button>
+          <button class="btn ${u.blocked?'btn-green':'btn-orange'}" style="padding:5px 9px;font-size:.75rem" onclick="blockUser('${u.id}',${u.blocked})">${u.blocked?'Unblock':'Block'}</button>
+          <button class="btn ${u.incomeEnabled===false?'btn-green':'btn-orange'}" style="padding:5px 9px;font-size:.75rem" onclick="toggleIncome('${u.id}',${u.incomeEnabled})">${u.incomeEnabled===false?'Income ON':'Income OFF'}</button>
+          <button class="btn btn-red" style="padding:5px 9px;font-size:.75rem" onclick="deleteUser('${u.id}')">🗑️</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+  renderPagination(total);
+}
 
-window.toggleIncome = async(id,status)=>{
+function renderPagination(total){
+  const pg = document.getElementById('userPagination');
+  if(total<=1){ pg.innerHTML=''; return; }
+  let html = <span class="pg-info">${filteredUsers.length} users</span>;
+  for(let i=1;i<=total;i++) html+=<button class="pg-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>;
+  pg.innerHTML = html;
+}
+window.goPage = (p) => { currentPage=p; renderUsers(); };
 
-await updateDoc(doc(db,"users",id),{
-incomeEnabled: !status
-});
-
-alert("Income Updated");
-
-loadUsers();
-
+// ── VIEW USER ──
+window.viewUser = (id) => {
+  const u = allUsers.find(x=>x.id===id);
+  if(!u) return;
+  selectedUserId = id;
+  document.getElementById('userInfoGrid').innerHTML = `
+    <div class="info-item"><div class="lbl">Full Name</div><div class="val">${u['full neme']||u.fullName||u.name||'—'}</div></div>
+    <div class="info-item"><div class="lbl">Username</div><div class="val">@${u.username||'—'}</div></div>
+    <div class="info-item"><div class="lbl">Email</div><div class="val">${u.email||'—'}</div></div>
+    <div class="info-item"><div class="lbl">Mobile</div><div class="val">${u.mobile||'—'}</div></div>
+    <div class="info-item"><div class="lbl">Balance</div><div class="val" style="color:#f59e0b">$${parseFloat(u.balance||0).toFixed(2)}</div></div>
+    <div class="info-item"><div class="lbl">Country</div><div class="val">${u.country||'—'}</div></div>
+    <div class="info-item"><div class="lbl">Ref Code</div><div class="val">${u['ref code']||u.refCode||'—'}</div></div>
+    <div class="info-item"><div class="lbl">Joined</div><div class="val">${u.createAt?new Date(u.createAt).toLocaleDateString():'—'}</div></div>
+    <div class="info-item"><div class="lbl">Status</div><div class="val"><span class="badge ${u.blocked?'badge-red':'badge-green'}">${u.blocked?'Blocked':'Active'}</span></div></div>
+    <div class="info-item"><div class="lbl">Income</div><div class="val"><span class="badge ${u.incomeEnabled===false?'badge-red':'badge-green'}">${u.incomeEnabled===false?'OFF':'ON'}</span></div></div>
+  `;
+  document.getElementById('walletAmount').value = u.balance||0;
+  document.getElementById('newSponsor').value = '';
+  document.getElementById('userModal').classList.add('open');
 };
 
-/* ================= DELETE USER ================= */
-
-window.deleteUser = async(id)=>{
-
-let ok = confirm("Delete User?");
-
-if(!ok) return;
-
-await deleteDoc(doc(db,"users",id));
-
-alert("User Deleted");
-
-loadUsers();
-
+// ── BLOCK ──
+window.blockUser = async(id,status) => {
+  if(!confirm(status?'Unblock this user?':'Block this user?')) return;
+  await updateDoc(doc(db,'users',id),{blocked:!status});
+  toast(status?'✅ User unblocked':'🚫 User blocked');
+  loadUsers(); loadDashboard();
 };
 
-/* ================= QUICK BALANCE ================= */
-
-window.quickAddBalance = async(id)=>{
-
-let amount = prompt("Enter Amount");
-
-if(!amount) return;
-
-const userRef = doc(db,"users",id);
-
-const snap = await getDoc(userRef);
-
-if(snap.exists()){
-
-let current =
-Number(snap.data().balance || 0);
-
-await updateDoc(userRef,{
-balance:
-current + Number(amount)
-});
-
-alert("Balance Added");
-
-loadUsers();
-
-}
-
+// ── INCOME ──
+window.toggleIncome = async(id,status) => {
+  await updateDoc(doc(db,'users',id),{incomeEnabled:status===false?true:false});
+  toast('Income updated');
+  loadUsers();
 };
 
-/* ================= ADD BALANCE PAGE ================= */
-
-window.addBalance = async()=>{
-
-const userId =
-document.getElementById("balanceUserId").value;
-
-const amount =
-document.getElementById("balanceAmount").value;
-
-if(!userId || !amount){
-
-alert("Fill All Fields");
-
-return;
-
-}
-
-const userRef = doc(db,"users",userId);
-
-const snap = await getDoc(userRef);
-
-if(!snap.exists()){
-
-alert("User Not Found");
-
-return;
-
-}
-
-let current =
-Number(snap.data().balance || 0);
-
-await updateDoc(userRef,{
-balance:
-current + Number(amount)
-});
-
-alert("Balance Added");
-
-loadUsers();
-
+// ── DELETE ──
+window.deleteUser = async(id) => {
+  if(!confirm('⚠️ Permanently delete this user?')) return;
+  await deleteDoc(doc(db,'users',id));
+  toast('🗑️ User deleted');
+  loadUsers(); loadDashboard();
 };
 
-/* ================= CREATE USER ================= */
-
-window.createUser = async()=>{
-
-const name =
-document.getElementById("newName").value;
-
-const email =
-document.getElementById("newEmail").value;
-
-const balance =
-document.getElementById("newBalance").value;
-
-const rank =
-document.getElementById("newRank").value;
-
-if(!name || !email){
-
-alert("Fill All Fields");
-
-return;
-
-}
-
-await addDoc(collection(db,"users"),{
-
-name,
-email,
-
-balance:Number(balance || 0),
-
-rank:rank || "Member",
-
-blocked:false,
-
-incomeEnabled:true,
-
-createdAt:new Date().toISOString()
-
-});
-
-alert("User Created");
-
-loadUsers();
-
-};
-/* ================= EDIT USER ================= */
-
-window.editUser = async(id)=>{
-
-const userRef = doc(db,"users",id);
-
-const snap = await getDoc(userRef);
-
-if(snap.exists()){
-
-const data = snap.data();
-
-let newName =
-prompt("Edit Name", data.name);
-
-if(newName === null) return;
-
-let newBalance =
-prompt("Edit Balance", data.balance);
-
-if(newBalance === null) return;
-
-let newRank =
-prompt("Edit Rank", data.rank || "Member");
-
-if(newRank === null) return;
-
-await updateDoc(userRef,{
-
-name:newName,
-
-balance:Number(newBalance),
-
-rank:newRank
-
-});
-
-alert("User Updated");
-
-loadUsers();
-
-}
-
+// ── WALLET UPDATE ──
+window.updateWallet = async() => {
+  const amount = parseFloat(document.getElementById('walletAmount').value);
+  if(isNaN(amount)) return toast('Enter valid amount','error');
+  await updateDoc(doc(db,'users',selectedUserId),{balance:amount});
+  toast('💰 Wallet updated!');
+  closeModal('userModal');
+  loadUsers(); loadDashboard();
 };
 
-/* ================= LOAD INVESTMENTS ================= */
+// ── CHANGE SPONSOR ──
+window.changeSponsor = async() => {
+  const sponsor = document.getElementById('newSponsor').value.trim();
+  if(!sponsor) return toast('Enter sponsor ref code','error');
+  await updateDoc(doc(db,'users',selectedUserId),{sponsor, refCode:sponsor});
+  toast('✅ Sponsor changed!');
+  closeModal('userModal');
+  loadUsers();
+};
 
-async function loadInvestments(){
+// ── INVESTMENTS ──
+window.loadInvestments = async() => {
+  document.getElementById('investTable').innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">Loading...</td></tr>';
+  try {
+    const snap = await getDocs(collection(db,'investments'));
+    let html='', total=0;
+    snap.forEach(d => {
+      const data=d.data(); total+=parseFloat(data.amount||0);
+      html+=<tr><td>${data.user||data.userId||'—'}</td><td><strong>$${data.amount||0}</strong></td><td>${data.date||data.createdAt||'—'}</td><td><span class="badge badge-green">${data.status||'active'}</span></td><td><button class="btn btn-red" style="padding:5px 9px;font-size:.75rem" onclick="deleteInvest('${d.id}')">🗑️</button></td></tr>;
+    });
+    document.getElementById('investTable').innerHTML = html||'<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">No data</td></tr>';
+    document.getElementById('st-invest').textContent = '$'+total.toFixed(2);
+  } catch(e){ document.getElementById('investTable').innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--red);padding:20px">Failed</td></tr>'; }
+};
+window.deleteInvest = async(id) => {
+  if(!confirm('Delete?')) return;
+  await deleteDoc(doc(db,'investments',id));
+  toast('Deleted'); loadInvestments();
+};
 
-const snap =
-await getDocs(collection(db,"investments"));
+// ── WITHDRAW ──
+window.loadWithdraw = async() => {
+  document.getElementById('withdrawTable').innerHTML='<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">Loading...</td></tr>';
+  try {
+    const snap = await getDocs(collection(db,'withdrawals'));
+    let html='', pending=0, total=0;
+    snap.forEach(d => {
+      const data=d.data(); total+=parseFloat(data.amount||0);
+      if(data.status!=='approved') pending++;
+      html+=<tr><td>${data.user||data.userId||'—'}</td><td><strong>$${data.amount||0}</strong></td><td>${data.method||'—'}</td><td>${data.date||data.createdAt||'—'}</td><td><span class="badge ${data.status==='approved'?'badge-green':data.status==='rejected'?'badge-red':'badge-orange'}">${data.status||'pending'}</span></td><td><div class="action-group"><button class="btn btn-green" style="padding:5px 9px;font-size:.75rem" onclick="approveWithdraw('${d.id}')">✅ Approve</button><button class="btn btn-red" style="padding:5px 9px;font-size:.75rem" onclick="rejectWithdraw('${d.id}')">❌ Reject</button><button class="btn btn-ghost" style="padding:5px 9px;font-size:.75rem" onclick="returnTransfer('${d.id}','${data.userId||''}',${data.amount||0})">↩️ Return</button></div></td></tr>;
+    });
+    document.getElementById('withdrawTable').innerHTML = html||'<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">No data</td></tr>';
+    document.getElementById('st-withdraw').textContent = pending;
+  } catch(e){ document.getElementById('withdrawTable').innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--red);padding:20px">Failed</td></tr>'; }
+};
+window.approveWithdraw = async(id) => { await updateDoc(doc(db,'withdrawals',id),{status:'approved'}); toast('✅ Approved'); loadWithdraw(); };
+window.rejectWithdraw = async(id) => { await updateDoc(doc(db,'withdrawals',id),{status:'rejected'}); toast('❌ Rejected'); loadWithdraw(); };
+window.returnTransfer = async(id,userId,amount) => {
+  if(!confirm('Return $'+amount+' to user?')) return;
+  if(userId){
+    const uRef = doc(db,'users',userId);
+    const uSnap = await getDoc(uRef);
+    if(uSnap.exists()){
+      const cur = parseFloat(uSnap.data().balance||0);
+      await updateDoc(uRef,{balance:cur+amount});
+    }
+  }
+  await updateDoc(doc(db,'withdrawals',id),{status:'returned'});
+  toast('↩️ Amount returned to user');
+  loadWithdraw();
+};
 
-let html = "";
-let total = 0;
-
-snap.forEach((d)=>{
-
-const data = d.data();
-
-total += Number(data.amount || 0);
-
-html += `
-
-<tr>
-
-<td>${data.user || "-"}</td>
-
-<td>$${data.amount || 0}</td>
-
-<td>${data.date || "-"}</td>
-
-<td>${data.status || "active"}</td>
-
-</tr>
-
-`;
-
-});
-
-document.getElementById("investTable").innerHTML = html;
-
-document.getElementById("totalInvest").innerText =
-"$" + total;
-
+// ── TRANSACTIONS ──
+window.loadTransactions = async() => {
+  document.getElementById('txTable').innerHTML='<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">Loading...</td></tr>';
+  try {
+    const snap = await getDocs(collection(db,'transactions'));
+    allTx = [];
+    snap.forEach(d => allTx.push({id:d.id,...d.data()}));
+    renderTx(allTx);
+  } catch(e){ document.getElementById('txTable').innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--red);padding:20px">No transactions collection yet</td></tr>'; }
+};
+window.filterTx = () => {
+  const q = document.getElementById('txSearch').value.toLowerCase();
+  const filtered = allTx.filter(t => (t.userId||'').toLowerCase().includes(q)||(t.type||'').toLowerCase().includes(q)||(t.note||'').toLowerCase().includes(q));
+  renderTx(filtered);
+};
+function renderTx(list){
+  document.getElementById('txTable').innerHTML = list.length ? list.map(t=>`
+    <tr>
+      <td style="font-size:.75rem;color:var(--muted)">${t.createdAt?new Date(t.createdAt).toLocaleString():'—'}</td>
+      <td>${t.userId||'—'}</td>
+      <td><span class="badge badge-blue">${t.type||'—'}</span></td>
+      <td><strong style="color:#f59e0b">$${parseFloat(t.amount||0).toFixed(2)}</strong></td>
+      <td style="color:var(--muted);font-size:.78rem">${t.note||'—'}</td>
+      <td><span class="badge ${t.status==='completed'?'badge-green':'badge-orange'}">${t.status||'pending'}</span></td>
+      <td><button class="btn btn-red" style="padding:5px 9px;font-size:.75rem" onclick="deleteTx('${t.id}')">🗑️</button></td>
+    </tr>
+  `).join('') : '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">No transactions</td></tr>';
 }
+window.deleteTx = async(id) => {
+  if(!confirm('Delete transaction?')) return;
+  await deleteDoc(doc(db,'transactions',id));
+  toast('Deleted'); loadTransactions();
+};
 
-/* ================= LOAD WITHDRAW ================= */
-
-async function loadWithdraw(){
-
-const snap =
-await getDocs(collection(db,"withdrawals"));
-
-let html = "";
-
-let pending = 0;
-
-let total = 0;
-
-snap.forEach((d)=>{
-
-const data = d.data();
-
-total += Number(data.amount || 0);
-
-if(data.status !== "approved"){
-pending++;
+// ── NOTICES ──
+async function loadNotices(){
+  try {
+    const snap = await getDocs(collection(db,'notices'));
+    const list = [];
+    snap.forEach(d => list.push({id:d.id,...d.data()}));
+    document.getElementById('noticeList').innerHTML = list.length ? list.map(n=>`
+      <div style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+        <div><div style="font-weight:600;margin-bottom:4px">${n.title||'Notice'}</div><div style="color:var(--muted);font-size:.85rem">${n.text||n.message||''}</div><div style="color:var(--muted);font-size:.72rem;margin-top:4px">${n.createdAt?new Date(n.createdAt).toLocaleString():''}</div></div>
+        <button class="btn btn-red" style="padding:5px 9px;font-size:.75rem" onclick="deleteNotice('${n.id}')">🗑️</button>
+      </div>
+    `).join('') : '<div style="color:var(--muted)">No notices yet.</div>';
+  } catch(e){}
 }
+window.saveNotice = async() => {
+  const title = document.getElementById('noticeTitle').value.trim();
+  const text = document.getElementById('noticeText').value.trim();
+  if(!title||!text) return toast('Fill all fields','error');
+  await addDoc(collection(db,'notices'),{title,text,createdAt:new Date().toISOString()});
+  await setDoc(doc(db,'notice','latest'),{text:title+': '+text});
+  toast('📢 Notice sent!');
+  document.getElementById('noticeTitle').value='';
+  document.getElementById('noticeText').value='';
+  loadNotices();
+};
+window.deleteNotice = async(id) => {
+  if(!confirm('Delete notice?')) return;
+  await deleteDoc(doc(db,'notices',id));
+  toast('Deleted'); loadNotices();
+};
 
-html += `
-
-<tr>
-
-<td>${data.user || "-"}</td>
-
-<td>$${data.amount || 0}</td>
-
-<td>${data.status || "pending"}</td>
-
-<td>
-
-<button class="green"
-onclick="approveWithdraw('${d.id}')">
-Approve
-</button>
-
-<button class="red"
-onclick="rejectWithdraw('${d.id}')">
-Reject
-</button>
-
-</td>
-
-</tr>
-
-`;
-
+// ── VOUCHER ──
+document.getElementById('voucherTarget').addEventListener('change', function(){
+  document.getElementById('voucherUserGroup').style.display = this.value==='single'?'block':'none';
 });
+window.sendVoucher = async() => {
+  const target = document.getElementById('voucherTarget').value;
+  const amount = parseFloat(document.getElementById('voucherAmount').value);
+  const note = document.getElementById('voucherNote').value||'Gift voucher';
+  if(isNaN(amount)||amount<=0) return toast('Enter valid amount','error');
+  if(target==='all'){
+    if(!confirm('Send $'+amount+' voucher to ALL users?')) return;
+    const snap = await getDocs(collection(db,'users'));
+    const batch = writeBatch(db);
+    snap.forEach(d => { const cur=parseFloat(d.data().balance||0); batch.update(doc(db,'users',d.id),{balance:cur+amount}); });
+    await batch.commit();
+    toast('🎁 Voucher sent to all users!');
+  } else {
+    const userId = document.getElementById('voucherUserId').value.trim();
+    if(!userId) return toast('Enter user ID or email','error');
+    const uSnap = await getDoc(doc(db,'users',userId));
+    if(!uSnap.exists()) return toast('User not found','error');
+    const cur = parseFloat(uSnap.data().balance||0);
+    await updateDoc(doc(db,'users',userId),{balance:cur+amount});
+    toast('🎁 Voucher sent!');
+  }
+  document.getElementById('voucherAmount').value='';
+};
 
-document.getElementById("withdrawTable").innerHTML = html;
+// ── SETTINGS ──
+window.loadSettings = async() => {
+  const snap = await getDoc(doc(db,'settings','global'));
+  if(snap.exists()){
+    const d=snap.data();
+    document.getElementById('roi').value=d.roi||'';
+    document.getElementById('monthlyROI').value=d.monthlyROI||'';
+    document.getElementById('ref').value=d.referralBonus||'';
+    document.getElementById('genIncome').value=d.generationIncome||'';
+    document.getElementById('matchIncome').value=d.matchingIncome||'';
+    document.getElementById('fee').value=d.registrationFee||'';
+    document.getElementById('minWithdraw').value=d.minWithdraw||'';
+    document.getElementById('maxWithdraw').value=d.maxWithdraw||'';
+    document.getElementById('treeCut').value=d.treeCut||'';
+  }
+};
+window.saveSettings = async() => {
+  await setDoc(doc(db,'settings','global'),{
+    roi:document.getElementById('roi').value,
+    monthlyROI:document.getElementById('monthlyROI').value,
+    referralBonus:document.getElementById('ref').value,
+    generationIncome:document.getElementById('genIncome').value,
+    matchingIncome:document.getElementById('matchIncome').value,
+    registrationFee:document.getElementById('fee').value,
+    minWithdraw:document.getElementById('minWithdraw').value,
+    maxWithdraw:document.getElementById('maxWithdraw').value,
+    treeCut:document.getElementById('treeCut').value
+  },{merge:true});
+  toast('⚙️ Settings saved!');
+};
 
-document.getElementById("pendingWithdraw").innerText =
-pending;
+// ── ROI DISTRIBUTE ──
+window.distributeROI = async() => {
+  const settSnap = await getDoc(doc(db,'settings','global'));
+  const roi = parseFloat(settSnap.exists()?settSnap.data().monthlyROI||10:10);
+  if(!confirm('Distribute '+roi+'% Monthly ROI to ALL active users?')) return;
+  const snap = await getDocs(collection(db,'users'));
+  const batch = writeBatch(db);
+  snap.forEach(d => {
+    const data=d.data();
+    if(!data.blocked && data.incomeEnabled!==false){
+      const cur=parseFloat(data.balance||0);
+      const roiAmt=(cur*roi)/100;
+      batch.update(doc(db,'users',d.id),{balance:cur+roiAmt});
+    }
+  });
+  await batch.commit();
+  toast('💰 ROI distributed!');
+};
 
-document.getElementById("totalWithdraw").innerText =
-"$" + total;
+// ── MENU CONTROL ──
+window.loadMenuControl = async() => {
+  const snap = await getDoc(doc(db,'menuControl','main'));
+  if(snap.exists()){
+    const d=snap.data();
+    document.getElementById('depositBtn').value=String(d.deposit!==false);
+    document.getElementById('withdrawBtn').value=String(d.withdraw!==false);
+    document.getElementById('teamBtn').value=String(d.team!==false);
+    document.getElementById('salaryBtn').value=String(d.salary!==false);
+    document.getElementById('investBtn').value=String(d.invest!==false);
+    document.getElementById('roiBtn').value=String(d.roi!==false);
+  }
+};
+window.saveMenuControl = async() => {
+  await setDoc(doc(db,'menuControl','main'),{
+    deposit:document.getElementById('depositBtn').value==='true',
+    withdraw:document.getElementById('withdrawBtn').value==='true',
+    team:document.getElementById('teamBtn').value==='true',
+    salary:document.getElementById('salaryBtn').value==='true',
+    invest:document.getElementById('investBtn').value==='true',
+    roi:document.getElementById('roiBtn').value==='true'
+  });
+  toast('🧩 Menu control saved!');
+};
 
-}
+// ── MODIFY BALANCE ──
+window.modifyBalance = async() => {
+  const userId=document.getElementById('balanceUserId').value.trim();
+  const amount=parseFloat(document.getElementById('balanceAmount').value);
+  const action=document.getElementById('balanceAction').value;
+  const note=document.getElementById('balanceNote').value||'Admin adjustment';
+  if(!userId||isNaN(amount)) return toast('Fill all fields','error');
+  const uRef=doc(db,'users',userId);
+  const uSnap=await getDoc(uRef);
+  if(!uSnap.exists()) return toast('User not found','error');
+  let cur=parseFloat(uSnap.data().balance||0);
+  let newBal=action==='add'?cur+amount:action==='deduct'?cur-amount:amount;
+  if(newBal<0) return toast('Balance cannot be negative','error');
+  await updateDoc(uRef,{balance:newBal});
+  await addDoc(collection(db,'transactions'),{userId,amount,type:'admin_'+action,note,status:'completed',createdAt:new Date().toISOString()});
+  toast('✅ Balance updated! New: $'+newBal.toFixed(2));
+  document.getElementById('balanceUserId').value='';
+  document.getElementById('balanceAmount').value='';
+};
 
-/* ================= APPROVE ================= */
+// ── CREATE USER ──
+window.createUser = async() => {
+  const name=document.getElementById('newName').value.trim();
+  const email=document.getElementById('newEmail').value.trim();
+  if(!name||!email) return toast('Name and email required','error');
+  await addDoc(collection(db,'users'),{
+    'full neme':name, email,
+    username:document.getElementById('newUsername').value,
+    mobile:document.getElementById('newMobile').value,
+    country:document.getElementById('newCountry').value,
+    balance:parseFloat(document.getElementById('newBalance').value||0),
+    'ref code':document.getElementById('newRef').value,
+    blocked:false, incomeEnabled:true,
+    createAt:new Date().toISOString()
+  });
+  toast('✅ User created!');
+  ['newName','newEmail','newUsername','newMobile','newCountry','newBalance','newRef'].forEach(id=>document.getElementById(id).value='');
+  loadUsers();
+};
 
-window.approveWithdraw = async(id)=>{
+// ── BACKUP ──
+window.downloadBackup = async() => {
+  const snap = await getDocs(collection(db,'users'));
+  const data=[];
+  snap.forEach(d=>data.push({id:d.id,...d.data()}));
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url;
+  a.download='lifelinemeta_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(url);
+  toast('⬇️ Backup downloaded!');
+};
+window.restoreBackup = async() => {
+  const file=document.getElementById('restoreFile').files[0];
+  if(!file) return toast('Select a JSON file','error');
+  const text=await file.text();
+  const data=JSON.parse(text);
+  if(!confirm('Restore '+data.length+' users? Existing data will be overwritten.')) return;
+  const batch=writeBatch(db);
+  data.forEach(u=>{ const {id,...rest}=u; batch.set(doc(db,'users',id),rest); });
+  await batch.commit();
+  toast('✅ Backup restored!');
+  loadUsers();
+};
 
-await updateDoc(doc(db,"withdrawals",id),{
-status:"approved"
-});
-
-alert("Approved");
-
+// ── INIT ──
+loadDashboard();
+loadDashboardNotice();
+loadUsers();
 loadWithdraw();
-
-};
-
-/* ================= REJECT ================= */
-
-window.rejectWithdraw = async(id)=>{
-
-await updateDoc(doc(db,"withdrawals",id),{
-status:"rejected"
-});
-
-alert("Rejected");
-
-loadWithdraw();
-
-};
-
-/* ================= SETTINGS ================= */
-
-window.saveSettings = async()=>{
-
-const roi =
-document.getElementById("roi").value;
-
-const ref =
-document.getElementById("ref").value;
-
-const fee =
-document.getElementById("fee").value;
-
-const minWithdraw =
-document.getElementById("minWithdraw").value;
-
-const maxWithdraw =
-document.getElementById("maxWithdraw").value;
-
-const monthlyROI =
-document.getElementById("monthlyROI").value;
-
-await setDoc(doc(db,"settings","global"),{
-
-roi,
-
-referralBonus:ref,
-
-registrationFee:fee,
-
-minWithdraw,
-
-maxWithdraw,
-
-monthlyROI
-
-});
-
-alert("Settings Saved");
-
-};
-
-/* ================= LOAD SETTINGS ================= */
-
-async function loadSettings(){
-
-const snap =
-await getDoc(doc(db,"settings","global"));
-
-if(snap.exists()){
-
-const data = snap.data();
-
-document.getElementById("roi").value =
-data.roi || "";
-
-document.getElementById("ref").value =
-data.referralBonus || "";
-
-document.getElementById("fee").value =
-data.registrationFee || "";
-
-document.getElementById("minWithdraw").value =
-data.minWithdraw || "";
-
-document.getElementById("maxWithdraw").value =
-data.maxWithdraw || "";
-
-document.getElementById("monthlyROI").value =
-data.monthlyROI || "";
-
-}
-
-}
-
-/* ================= NOTICE ================= */
-
-window.saveNotice = async()=>{
-
-const notice =
-document.getElementById("noticeText").value;
-
-await setDoc(doc(db,"notice","latest"),{
-text:notice
-});
-
-alert("Notice Saved");
-
-loadNotice();
-
-};
-
-async function loadNotice(){
-
-const snap =
-await getDoc(doc(db,"notice","latest"));
-
-if(snap.exists()){
-
-const data = snap.data();
-
-document.getElementById("liveNotice").innerText =
-data.text;
-
-document.getElementById("noticeText").value =
-data.text;
-
-}
-
-}
-
-/* ================= MENU CONTROL ================= */
-
-window.saveMenuControl = async()=>{
-
-const depositBtn =
-document.getElementById("depositBtn").value;
-
-const withdrawBtn =
-document.getElementById("withdrawBtn").value;
-
-const teamBtn =
-document.getElementById("teamBtn").value;
-
-const salaryBtn =
-document.getElementById("salaryBtn").value;
-
-await setDoc(doc(db,"menuControl","main"),{
-
-deposit:
-depositBtn === "true",
-
-withdraw:
-withdrawBtn === "true",
-
-team:
-teamBtn === "true",
-
-salary:
-salaryBtn === "true"
-
-});
-
-alert("Menu Updated");
-
-};
-/* ================= LOAD MENU CONTROL ================= */
-
-async function loadMenuControl(){
-
-const snap =
-await getDoc(doc(db,"menuControl","main"));
-
-if(snap.exists()){
-
-const data = snap.data();
-
-document.getElementById("depositBtn").value =
-String(data.deposit);
-
-document.getElementById("withdrawBtn").value =
-String(data.withdraw);
-
-document.getElementById("teamBtn").value =
-String(data.team);
-
-document.getElementById("salaryBtn").value =
-String(data.salary);
-
-}
-
-}
-
-/* ================= LOGOUT ================= */
-
-window.logout = ()=>{
-
-localStorage.removeItem("adminLogged");
-
-window.location.href = "admin-login.html";
-
-};
-
-/* ================= INIT ================= */
-
-loadUsers();
-
 loadInvestments();
-
-loadWithdraw();
-
-loadSettings();
-
-loadNotice();
-loadMenuControl();
-
 </script>
-
 </body>
 </html>
